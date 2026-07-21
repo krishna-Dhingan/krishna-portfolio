@@ -1,0 +1,79 @@
+.education-section {
+  padding: 6rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.education-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.edu-card {
+  background-color: var(--surface);
+  padding: 3rem;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.edu-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.cert-card {
+  border-top: 4px solid var(--accent);
+}
+
+.degree-card {
+  border-top: 4px solid var(--surface-light);
+}
+
+.edu-icon {
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.edu-title {
+  font-size: 1.5rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.edu-subtitle {
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.edu-desc {
+  color: var(--foreground-muted);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.edu-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.edu-modules span {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.8rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  color: #ddd;
+}
+
+@media (max-width: 800px) {
+  .education-grid {
+    grid-template-columns: 1fr;
+  }
+}
