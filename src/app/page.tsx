@@ -13,15 +13,11 @@ import Footer from '@/components/Footer';
 import ThemeNavigation from '@/components/ThemeNavigation';
 
 export default function Home() {
-  const [loadProgress, setLoadProgress] = useState(0);
-
   return (
     <main className="main-content">
-      <LoadingScreen progress={loadProgress} />
-      
       <ThemeNavigation />
       
-      <HeroParallax onLoadProgress={setLoadProgress} />
+      <HeroParallax />
       
       <div style={{ position: 'relative', zIndex: 10, backgroundColor: 'var(--background)' }}>
         <About />

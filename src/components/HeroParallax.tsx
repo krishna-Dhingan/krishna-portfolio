@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import './HeroParallax.css';
 
 interface HeroParallaxProps {
-  onLoadProgress: (progress: number) => void;
+  onLoadProgress?: (progress: number) => void;
 }
 
 export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
@@ -23,57 +23,36 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
   const currentFrame = (index: number) => 
     `/sequence/frame_${index.toString().padStart(3, '0')}_delay-0.066s.webp`;
 
-  // Preload frames progressively. Unblock loading screen after the first few frames!
+  // Preload frames progressively. Instant display!
   useEffect(() => {
     let loadedImages = 0;
     const imgArray: HTMLImageElement[] = [];
-    const minFramesToUnlock = 2; // Reduced to 2 for instant loading
 
     const preloadImages = () => {
-      for (let i = 0; i < frameCount; i++) {
-        if (i < minFramesToUnlock) {
-          // Load first few frames immediately
+      // Frame 0 loads immediately
+      const firstImg = new Image();
+      firstImg.src = currentFrame(0);
+      firstImg.onload = firstImg.onerror = () => {
+        imgArray[0] = firstImg;
+        setImages([...imgArray]);
+        onLoadProgress?.(100);
+      };
+      imgArray[0] = firstImg;
+
+      // All subsequent frames stagger in background
+      for (let i = 1; i < frameCount; i++) {
+        setTimeout(() => {
           const img = new Image();
           img.src = currentFrame(i);
-          
           img.onload = () => {
-            loadedImages++;
-            onLoadProgress((loadedImages / minFramesToUnlock) * 100);
-            if (loadedImages === minFramesToUnlock) {
-              setImages([...imgArray]);
-            }
+            setImages(prev => {
+              const newArr = [...prev];
+              newArr[i] = img;
+              return newArr;
+            });
           };
-          
-          img.onerror = () => {
-            loadedImages++; 
-            onLoadProgress((loadedImages / minFramesToUnlock) * 100);
-            if (loadedImages === minFramesToUnlock) {
-              setImages([...imgArray]);
-            }
-          };
-          
           imgArray[i] = img;
-        } else {
-          // Stagger the loading of the remaining 140 frames so they don't block the network
-          setTimeout(() => {
-            const img = new Image();
-            img.src = currentFrame(i);
-            img.onload = () => {
-              // Update state so the canvas render loop can use this new frame
-              setImages(prev => {
-                const newArr = [...prev];
-                newArr[i] = img;
-                return newArr;
-              });
-            };
-          }, 500 + (i * 30)); // Delay loading by 500ms, then stagger by 30ms each
-        }
-      }
-      
-      // Edge case
-      if (frameCount < minFramesToUnlock) {
-        setImages(imgArray);
-        onLoadProgress(100);
+        }, 100 + (i * 20));
       }
     };
 
