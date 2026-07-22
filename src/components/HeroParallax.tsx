@@ -31,37 +31,46 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
 
     const preloadImages = () => {
       for (let i = 0; i < frameCount; i++) {
-        const img = new Image();
-        img.src = currentFrame(i);
-        
-        img.onload = () => {
-          loadedImages++;
+        if (i < minFramesToUnlock) {
+          // Load first few frames immediately
+          const img = new Image();
+          img.src = currentFrame(i);
           
-          // Progress bar up to 100% based on the first few frames only
-          if (loadedImages <= minFramesToUnlock) {
+          img.onload = () => {
+            loadedImages++;
             onLoadProgress((loadedImages / minFramesToUnlock) * 100);
-          }
+            if (loadedImages === minFramesToUnlock) {
+              setImages([...imgArray]);
+            }
+          };
           
-          // Once the minimum frames are loaded, unlock the UI
-          if (loadedImages === minFramesToUnlock) {
-            setImages(imgArray);
-          }
-        };
-        
-        img.onerror = () => {
-          loadedImages++; 
-          if (loadedImages <= minFramesToUnlock) {
+          img.onerror = () => {
+            loadedImages++; 
             onLoadProgress((loadedImages / minFramesToUnlock) * 100);
-          }
-          if (loadedImages === minFramesToUnlock) {
-            setImages(imgArray);
-          }
-        };
-        
-        imgArray.push(img);
+            if (loadedImages === minFramesToUnlock) {
+              setImages([...imgArray]);
+            }
+          };
+          
+          imgArray[i] = img;
+        } else {
+          // Stagger the loading of the remaining 140 frames so they don't block the network
+          setTimeout(() => {
+            const img = new Image();
+            img.src = currentFrame(i);
+            img.onload = () => {
+              // Update state so the canvas render loop can use this new frame
+              setImages(prev => {
+                const newArr = [...prev];
+                newArr[i] = img;
+                return newArr;
+              });
+            };
+          }, 500 + (i * 30)); // Delay loading by 500ms, then stagger by 30ms each
+        }
       }
       
-      // Edge case: if we have less than minFramesToUnlock total frames
+      // Edge case
       if (frameCount < minFramesToUnlock) {
         setImages(imgArray);
         onLoadProgress(100);
