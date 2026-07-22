@@ -21,7 +21,7 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
   const frameCount = 150;
 
   const currentFrame = (index: number) => 
-    `/sequence/frame_${index.toString().padStart(3, '0')}_delay-0.066s.png`;
+    `/sequence/frame_${index.toString().padStart(3, '0')}_delay-0.066s.webp`;
 
   // Preload frames progressively. Unblock loading screen after the first few frames!
   useEffect(() => {
