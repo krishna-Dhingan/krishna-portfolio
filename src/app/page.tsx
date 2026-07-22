@@ -15,6 +15,8 @@ import ThemeNavigation from '@/components/ThemeNavigation';
 export default function Home() {
   return (
     <main className="main-content">
+      <LoadingScreen />
+      
       <ThemeNavigation />
       
       <HeroParallax />
