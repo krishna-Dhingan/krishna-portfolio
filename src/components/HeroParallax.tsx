@@ -23,30 +23,48 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
   const currentFrame = (index: number) => 
     `/sequence/frame_${index.toString().padStart(3, '0')}_delay-0.066s.png`;
 
-  // Preload all 150 images into memory
+  // Preload frames progressively. Unblock loading screen after the first few frames!
   useEffect(() => {
     let loadedImages = 0;
     const imgArray: HTMLImageElement[] = [];
+    const minFramesToUnlock = 10; // Number of frames to wait for before unlocking the site
 
     const preloadImages = () => {
       for (let i = 0; i < frameCount; i++) {
         const img = new Image();
         img.src = currentFrame(i);
+        
         img.onload = () => {
           loadedImages++;
-          onLoadProgress((loadedImages / frameCount) * 100);
-          if (loadedImages === frameCount) {
+          
+          // Progress bar up to 100% based on the first few frames only
+          if (loadedImages <= minFramesToUnlock) {
+            onLoadProgress((loadedImages / minFramesToUnlock) * 100);
+          }
+          
+          // Once the minimum frames are loaded, unlock the UI
+          if (loadedImages === minFramesToUnlock) {
             setImages(imgArray);
           }
         };
+        
         img.onerror = () => {
-          loadedImages++; // Fallback so loading screen finishes
-          onLoadProgress((loadedImages / frameCount) * 100);
-          if (loadedImages === frameCount) {
+          loadedImages++; 
+          if (loadedImages <= minFramesToUnlock) {
+            onLoadProgress((loadedImages / minFramesToUnlock) * 100);
+          }
+          if (loadedImages === minFramesToUnlock) {
             setImages(imgArray);
           }
         };
+        
         imgArray.push(img);
+      }
+      
+      // Edge case: if we have less than minFramesToUnlock total frames
+      if (frameCount < minFramesToUnlock) {
+        setImages(imgArray);
+        onLoadProgress(100);
       }
     };
 
@@ -66,6 +84,9 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
     let animationFrameId: number;
 
     const drawImageToCanvas = (img: HTMLImageElement, alpha: number = 1) => {
+      // Guard against trying to draw incomplete images which can throw errors
+      if (!img || !img.complete || img.naturalWidth === 0) return;
+
       const hRatio = canvas.width / img.width;
       const vRatio = canvas.height / img.height;
       const ratio = Math.max(hRatio, vRatio) * 1.01; // Slight zoom to prevent borders
