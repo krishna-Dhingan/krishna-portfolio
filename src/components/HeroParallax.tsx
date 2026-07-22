@@ -27,7 +27,7 @@ export default function HeroParallax({ onLoadProgress }: HeroParallaxProps) {
   useEffect(() => {
     let loadedImages = 0;
     const imgArray: HTMLImageElement[] = [];
-    const minFramesToUnlock = 10; // Number of frames to wait for before unlocking the site
+    const minFramesToUnlock = 2; // Reduced to 2 for instant loading
 
     const preloadImages = () => {
       for (let i = 0; i < frameCount; i++) {
